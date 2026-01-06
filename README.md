@@ -13,17 +13,22 @@
         .powder { color: #ffd43b; }
 
         .result-card { min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #e9ecef; border-radius: 20px; margin-bottom: 20px; background: #fff; }
-        .grade-name { font-size: 3rem; font-weight: 900; margin: 0; }
+        .grade-name { font-size: 3rem; font-weight: 900; margin: 0; display: inline-block; }
         .score-badge { background: #495057; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; margin-top: 10px; }
 
-        button { width: 100%; padding: 18px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; transition: 0.15s; margin-bottom: 10px; }
-        .btn-draw { background: #4c6ef5; color: white; }
-        /* 1만회 버튼 색상 차별화 */
-        .btn-draw-10000 { background: #5c7cfa; color: white; }
-        .btn-reset { background: #ff6b6b; color: white; font-size: 0.8rem; padding: 10px; }
-        button:active { transform: scale(0.98); }
+        button { width: 100%; padding: 16px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; transition: 0.15s; margin-bottom: 8px; }
+        .btn-draw-1k { background: #4c6ef5; color: white; }
+        .btn-draw-10k { background: #7048e8; color: white; } /* 1만회 버튼 색상 변경 */
+        .btn-reset { background: #ff6b6b; color: white; font-size: 0.9rem; padding: 12px; margin-top: 10px; }
+        button:active { transform: scale(0.98); opacity: 0.9; }
 
-        .SSS { color: #fab005; }
+        /* SSS 무지개색 효과 */
+        .SSS {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
         .high { color: #228be6; }
         .mid { color: #40c057; }
     </style>
@@ -43,12 +48,13 @@
         <div id="score" class="score-badge">0 점</div>
     </div>
 
-    <button class="btn-draw" onclick="draw(1000)">1,000회 추출</button>
-    <button class="btn-draw btn-draw-10000" onclick="draw(10000)">10,000회 추출</button>
+    <button class="btn-draw-1k" onclick="draw(1000)">1,000회 추출</button>
+    <button class="btn-draw-10k" onclick="draw(10000)">10,000회 추출</button>
     <button class="btn-reset" onclick="reset()">초기화</button>
 </div>
 
 <script>
+    // 확률 데이터 (SSS 24점 ~ CCC 6점)
     const data = [
         { n: "SSS", s: 24, p: 0.00005 }, { n: "ASS", s: 23, p: 0.00025 },
         { n: "SAS", s: 22, p: 0.00015 }, { n: "BSS", s: 22, p: 0.00245 },
@@ -74,17 +80,16 @@
     let totalPowder = 0;
     let bestResult = { n: "READY", s: 0 };
 
-    // 횟수를 인자로 받도록 수정 (times)
     function draw(times) {
         let currentBest = { n: "", s: -1 };
         for (let i = 0; i < times; i++) {
             totalCount++;
-            totalPowder += 30;
+            totalPowder += 30; // 1회당 30 가루 소모
             const picked = getGrade();
             if (picked.s > currentBest.s) currentBest = picked;
         }
 
-        // 이번 추출 결과 중 최고점이 기존 전체 최고점보다 높으면 갱신
+        // 역대 최고 점수보다 높을 때만 화면 갱신
         if (currentBest.s > bestResult.s) {
             bestResult = currentBest;
             updateDisplay();
@@ -105,6 +110,7 @@
     function updateDisplay() {
         const gradeEl = document.getElementById('grade');
         gradeEl.innerText = bestResult.n;
+        // SSS일 경우 무지개색 클래스 적용
         gradeEl.className = "grade-name " + (bestResult.n === "SSS" ? "SSS" : (bestResult.s >= 20 ? "high" : (bestResult.s >= 15 ? "mid" : "")));
         document.getElementById('score').innerText = bestResult.s + " 점";
     }
